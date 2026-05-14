@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
+  baseURL:
+    'https://student-management-q9l9.onrender.com/api'
 })
 
 export default API
