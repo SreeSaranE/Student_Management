@@ -24,8 +24,6 @@ pnpm-debug.log*
 bin/
 obj/
 
-students.db
-
 # Visual Studio / Rider
 .vs/
 .idea/
