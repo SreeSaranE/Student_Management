@@ -6,7 +6,8 @@ function AddStudentForm({
   refreshStudents,
   editingStudent,
   setEditingStudent,
-  closeForm
+  closeForm,
+  darkMode
 }) {
 
   const [student, setStudent] = useState({
@@ -17,8 +18,6 @@ function AddStudentForm({
     email: '',
     phoneNumber: ''
   })
-
-  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
 
@@ -43,35 +42,7 @@ function AddStudentForm({
 
     const today = new Date()
 
-    let age = today.getFullYear() - birthDate.getFullYear()
-
-    const monthDiff =
-      today.getMonth() - birthDate.getMonth()
-
-    if (
-      monthDiff < 0 ||
-      (
-        monthDiff === 0 &&
-        today.getDate() < birthDate.getDate()
-      )
-    ) {
-      age--
-    }
-
-    return age
-  }
-
-  const handleChange = (e) => {
-
-  const { name, value } = e.target
-
-  if (name === 'dateOfBirth') {
-
-    const birthDate = new Date(value)
-
-    const today = new Date()
-
-    let calculatedAge =
+    let age =
       today.getFullYear() - birthDate.getFullYear()
 
     const monthDifference =
@@ -84,80 +55,38 @@ function AddStudentForm({
         today.getDate() < birthDate.getDate()
       )
     ) {
-      calculatedAge--
+      age--
+    }
+
+    return age
+  }
+
+  const handleChange = (e) => {
+
+    const { name, value } = e.target
+
+    if (name === 'dateOfBirth') {
+
+      const calculatedAge = calculateAge(value)
+
+      setStudent({
+        ...student,
+        dateOfBirth: value,
+        age: calculatedAge
+      })
+
+      return
     }
 
     setStudent({
       ...student,
-      dateOfBirth: value,
-      age: calculatedAge > 0 ? calculatedAge : 0
+      [name]: value
     })
-
-    return
-  }
-
-  setStudent({
-    ...student,
-    [name]: value
-  })
-}
-
-  const resetForm = () => {
-
-    setStudent({
-      name: '',
-      dateOfBirth: '',
-      gender: '',
-      age: '',
-      email: '',
-      phoneNumber: ''
-    })
-
-    setEditingStudent(null)
-
-    closeForm()
-  }
-
-  const validateForm = () => {
-
-    if (
-      !student.name ||
-      !student.dateOfBirth ||
-      !student.gender
-    ) {
-
-      toast.error('Please fill all required fields')
-
-      return false
-    }
-
-    if (student.age <= 0) {
-
-      toast.error('Invalid age')
-
-      return false
-    }
-
-    if (
-      student.phoneNumber &&
-      student.phoneNumber.length < 10
-    ) {
-
-      toast.error('Phone number should be minimum 10 digits')
-
-      return false
-    }
-
-    return true
   }
 
   const handleSubmit = async (e) => {
 
     e.preventDefault()
-
-    if (!validateForm()) return
-
-    setLoading(true)
 
     try {
 
@@ -177,149 +106,188 @@ function AddStudentForm({
         toast.success('Student Added Successfully')
       }
 
-      resetForm()
-
       refreshStudents()
+
+      closeForm()
 
     } catch (error) {
 
       if (error.response?.data?.message) {
 
-  toast.error(error.response.data.message)
+        toast.error(error.response.data.message)
 
-} else {
+      } else {
 
-  toast.error('Something went wrong')
-}
-
-      console.log(error)
-
-    } finally {
-
-      setLoading(false)
+        toast.error('Something went wrong')
+      }
     }
   }
 
   return (
-    <div className="card border-0 shadow-sm rounded-4 p-4 mb-4">
+    <div
+      className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+      style={{
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        zIndex: 999
+      }}
+    >
 
       <ToastContainer />
 
-      <h4 className="fw-bold mb-4">
-        {editingStudent
-          ? 'Edit Student'
-          : 'Add Student'}
-      </h4>
+      <div
+        className="card border-0 shadow rounded-4 p-4"
+        style={{
+          width: '600px',
+          backgroundColor: darkMode
+            ? '#1f2937'
+            : '#ffffff',
+          color: darkMode
+            ? '#ffffff'
+            : '#111827'
+        }}
+      >
 
-      <form onSubmit={handleSubmit}>
+        <div className="d-flex justify-content-between align-items-center mb-4">
 
-        <div className="row">
+          <h4 className="fw-bold m-0">
 
-          <div className="col-md-6 mb-3">
-            <label className="form-label">Name</label>
+            {editingStudent
+              ? 'Edit Student'
+              : 'Add Student'}
 
-            <input
-              type="text"
-              name="name"
-              className="form-control rounded-3"
-              value={student.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          </h4>
 
-          <div className="col-md-6 mb-3">
-            <label className="form-label">
-              Date Of Birth
-            </label>
-
-            <input
-              type="date"
-              name="dateOfBirth"
-              className="form-control rounded-3"
-              value={student.dateOfBirth}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label className="form-label">Gender</label>
-
-            <select
-              name="gender"
-              className="form-select rounded-3"
-              value={student.gender}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label className="form-label">Age</label>
-
-            <input
-              type="number"
-              name="age"
-              className="form-control rounded-3"
-              value={student.age}
-              readOnly
-            />
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label className="form-label">Email</label>
-
-            <input
-              type="email"
-              name="email"
-              className="form-control rounded-3"
-              value={student.email}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label className="form-label">
-              Phone Number
-            </label>
-
-            <input
-              type="text"
-              name="phoneNumber"
-              className="form-control rounded-3"
-              value={student.phoneNumber}
-              onChange={handleChange}
-            />
-          </div>
+          <button
+            className="btn-close btn-close-white"
+            onClick={closeForm}
+          />
 
         </div>
 
-        <button
-          className="btn btn-success px-4 rounded-pill me-2"
-          disabled={loading}
-        >
-          {loading
-            ? 'Processing...'
-            : editingStudent
-              ? 'Update Student'
-              : 'Add Student'}
-        </button>
+        <form onSubmit={handleSubmit}>
 
-        <button
-          type="button"
-          className="btn btn-secondary rounded-pill"
-          onClick={resetForm}
-        >
-          Cancel
-        </button>
+          <div className="row">
 
-      </form>
+            <div className="col-md-6 mb-3">
 
+              <label className="form-label">
+                Name
+              </label>
+
+              <input
+                type="text"
+                name="name"
+                className="form-control rounded-4"
+                value={student.name}
+                onChange={handleChange}
+                required
+              />
+
+            </div>
+
+            <div className="col-md-6 mb-3">
+
+              <label className="form-label">
+                Date Of Birth
+              </label>
+
+              <input
+                type="date"
+                name="dateOfBirth"
+                className="form-control rounded-4"
+                value={student.dateOfBirth}
+                onChange={handleChange}
+                required
+              />
+
+            </div>
+
+            <div className="col-md-6 mb-3">
+
+              <label className="form-label">
+                Gender
+              </label>
+
+              <select
+                name="gender"
+                className="form-select rounded-4"
+                value={student.gender}
+                onChange={handleChange}
+                required
+              >
+                <option value="">
+                  Select
+                </option>
+
+                <option value="Male">
+                  Male
+                </option>
+
+                <option value="Female">
+                  Female
+                </option>
+
+              </select>
+
+            </div>
+
+            <div className="col-md-6 mb-3">
+
+              <label className="form-label">
+                Email
+              </label>
+
+              <input
+                type="email"
+                name="email"
+                className="form-control rounded-4"
+                value={student.email}
+                onChange={handleChange}
+              />
+
+            </div>
+
+            <div className="col-md-12 mb-4">
+
+              <label className="form-label">
+                Phone Number
+              </label>
+
+              <input
+                type="text"
+                name="phoneNumber"
+                className="form-control rounded-4"
+                value={student.phoneNumber}
+                onChange={handleChange}
+              />
+
+            </div>
+
+          </div>
+
+          <div className="d-flex justify-content-end gap-2">
+
+            <button
+              type="button"
+              className="btn btn-secondary rounded-4"
+              onClick={closeForm}
+            >
+              Cancel
+            </button>
+
+            <button
+              className="btn btn-dark rounded-4 px-4"
+            >
+              {editingStudent
+                ? 'Update'
+                : 'Add'}
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
     </div>
   )
 }

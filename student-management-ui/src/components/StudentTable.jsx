@@ -3,7 +3,9 @@ import { useState } from 'react'
 function StudentTable({
   students,
   deleteStudent,
-  setEditingStudent
+  setEditingStudent,
+  darkMode,
+  visibleColumns
 }) {
 
   const [currentPage, setCurrentPage] = useState(1)
@@ -16,7 +18,11 @@ function StudentTable({
   const indexOfFirstStudent =
     indexOfLastStudent - studentsPerPage
 
-  const currentStudents = students.slice(
+  const sortedStudents = [...students].sort(
+    (a, b) => a.name.localeCompare(b.name)
+  )
+
+  const currentStudents = sortedStudents.slice(
     indexOfFirstStudent,
     indexOfLastStudent
   )
@@ -28,93 +34,328 @@ function StudentTable({
   return (
     <>
 
-      <div className="table-responsive">
+      <div
+        className="card border-0 shadow-sm rounded-4 overflow-hidden"
+        style={{
+          backgroundColor: darkMode
+            ? '#1f2937'
+            : '#ffffff'
+        }}
+      >
 
-        <table className="table align-middle table-hover bg-white rounded-4 overflow-hidden">
+        <div className="table-responsive">
 
-          <thead className="table-light">
-            <tr>
-              <th>Name</th>
-              <th>DOB</th>
-              <th>Gender</th>
-              <th>Age</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+          <table
+            className="table align-middle mb-0"
+            style={{
+              color: darkMode
+                ? '#ffffff'
+                : '#111827',
+              backgroundColor: darkMode
+                ? '#1f2937'
+                : '#ffffff'
+            }}
+          >
 
-          <tbody>
+            <thead>
 
-            {currentStudents.length === 0 ? (
-              <tr>
-                <td colSpan="7" className="text-center py-4">
-                  No Students Found
-                </td>
+              <tr
+                style={{
+                  backgroundColor: darkMode
+                    ? '#111827'
+                    : '#f3f4f6',
+                  color: darkMode
+                    ? '#ffffff'
+                    : '#111827'
+                }}
+              >
+
+                {visibleColumns.name && (
+                  <th
+                    style={{
+                      backgroundColor: darkMode
+                        ? '#111827'
+                        : '#f3f4f6',
+                      color: darkMode
+                        ? '#ffffff'
+                        : '#111827'
+                    }}
+                  >
+                    Name
+                  </th>
+                )}
+
+                {visibleColumns.dob && (
+                  <th
+                    style={{
+                      backgroundColor: darkMode
+                        ? '#111827'
+                        : '#f3f4f6',
+                      color: darkMode
+                        ? '#ffffff'
+                        : '#111827'
+                    }}
+                  >
+                    DOB
+                  </th>
+                )}
+
+                {visibleColumns.gender && (
+                  <th
+                    style={{
+                      backgroundColor: darkMode
+                        ? '#111827'
+                        : '#f3f4f6',
+                      color: darkMode
+                        ? '#ffffff'
+                        : '#111827'
+                    }}
+                  >
+                    Gender
+                  </th>
+                )}
+
+                {visibleColumns.age && (
+                  <th
+                    style={{
+                      backgroundColor: darkMode
+                        ? '#111827'
+                        : '#f3f4f6',
+                      color: darkMode
+                        ? '#ffffff'
+                        : '#111827'
+                    }}
+                  >
+                    Age
+                  </th>
+                )}
+
+                {visibleColumns.email && (
+                  <th
+                    style={{
+                      backgroundColor: darkMode
+                        ? '#111827'
+                        : '#f3f4f6',
+                      color: darkMode
+                        ? '#ffffff'
+                        : '#111827'
+                    }}
+                  >
+                    Email
+                  </th>
+                )}
+
+                {visibleColumns.phone && (
+                  <th
+                    style={{
+                      backgroundColor: darkMode
+                        ? '#111827'
+                        : '#f3f4f6',
+                      color: darkMode
+                        ? '#ffffff'
+                        : '#111827'
+                    }}
+                  >
+                    Phone
+                  </th>
+                )}
+
+                <th
+                  style={{
+                    backgroundColor: darkMode
+                      ? '#111827'
+                      : '#f3f4f6',
+                    color: darkMode
+                      ? '#ffffff'
+                      : '#111827'
+                  }}
+                >
+                  
+                </th>
+
               </tr>
-            ) : (
-              currentStudents.map((student) => (
 
-                <tr key={student.id}>
+            </thead>
 
-                  <td className="fw-semibold">
-                    {student.name}
-                  </td>
+            <tbody>
 
-                  <td>
-                    {student.dateOfBirth?.split('T')[0]}
-                  </td>
+              {currentStudents.length === 0 ? (
 
-                  <td>{student.gender}</td>
+                <tr>
 
-                  <td>{student.age}</td>
-
-                  <td>{student.email}</td>
-
-                  <td>{student.phoneNumber}</td>
-
-                  <td>
-
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() =>
-                        setEditingStudent(student)
-                      }
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() =>
-                        deleteStudent(student.id)
-                      }
-                    >
-                      Delete
-                    </button>
-
+                  <td
+                    colSpan="7"
+                    className="text-center py-4"
+                    style={{
+                      backgroundColor: darkMode
+                        ? '#1f2937'
+                        : '#ffffff',
+                      color: darkMode
+                        ? '#ffffff'
+                        : '#111827'
+                    }}
+                  >
+                    No Students Found
                   </td>
 
                 </tr>
-              ))
-            )}
 
-          </tbody>
+              ) : (
 
-        </table>
+                currentStudents.map((student) => (
+
+                  <tr
+                    key={student.id}
+                    style={{
+                      backgroundColor: darkMode
+                        ? '#1f2937'
+                        : '#ffffff',
+                      color: darkMode
+                        ? '#ffffff'
+                        : '#111827'
+                    }}
+                  >
+
+                    {visibleColumns.name && (
+                      <td
+                        style={{
+                          backgroundColor: darkMode
+                            ? '#1f2937'
+                            : '#ffffff',
+                          color: darkMode
+                            ? '#ffffff'
+                            : '#111827'
+                        }}
+                      >
+                        {student.name}
+                      </td>
+                    )}
+
+                    {visibleColumns.dob && (
+                      <td
+                        style={{
+                          backgroundColor: darkMode
+                            ? '#1f2937'
+                            : '#ffffff',
+                          color: darkMode
+                            ? '#ffffff'
+                            : '#111827'
+                        }}
+                      >
+                        {student.dateOfBirth?.split('T')[0]}
+                      </td>
+                    )}
+
+                    {visibleColumns.gender && (
+                      <td
+                        style={{
+                          backgroundColor: darkMode
+                            ? '#1f2937'
+                            : '#ffffff',
+                          color: darkMode
+                            ? '#ffffff'
+                            : '#111827'
+                        }}
+                      >
+                        {student.gender}
+                      </td>
+                    )}
+
+                    {visibleColumns.age && (
+                      <td
+                        style={{
+                          backgroundColor: darkMode
+                            ? '#1f2937'
+                            : '#ffffff',
+                          color: darkMode
+                            ? '#ffffff'
+                            : '#111827'
+                        }}
+                      >
+                        {student.age}
+                      </td>
+                    )}
+
+                    {visibleColumns.email && (
+                      <td
+                        style={{
+                          backgroundColor: darkMode
+                            ? '#1f2937'
+                            : '#ffffff',
+                          color: darkMode
+                            ? '#ffffff'
+                            : '#111827'
+                        }}
+                      >
+                        {student.email}
+                      </td>
+                    )}
+
+                    {visibleColumns.phone && (
+                      <td
+                        style={{
+                          backgroundColor: darkMode
+                            ? '#1f2937'
+                            : '#ffffff',
+                          color: darkMode
+                            ? '#ffffff'
+                            : '#111827'
+                        }}
+                      >
+                        {student.phoneNumber}
+                      </td>
+                    )}
+
+                    <td
+                      style={{
+                        backgroundColor: darkMode
+                          ? '#1f2937'
+                          : '#ffffff'
+                      }}
+                    >
+
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        onClick={() => setEditingStudent(student)}
+                      >
+                        ✎
+                      </button>
+
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => deleteStudent(student.id)}
+                      >
+                        ⛌
+                      </button>
+
+                    </td>
+
+                  </tr>
+                ))
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
-      <div className="d-flex justify-content-center mt-4 gap-2">
+      <div className="d-flex justify-content-center gap-2 mt-4">
 
         {[...Array(totalPages)].map((_, index) => (
 
           <button
             key={index}
-            className={`btn ${
+            className={`btn btn-sm ${
               currentPage === index + 1
-                ? 'btn-success'
-                : 'btn-outline-success'
+                ? darkMode
+                  ? 'btn-light'
+                  : 'btn-dark'
+                : darkMode
+                  ? 'btn-outline-light'
+                  : 'btn-outline-dark'
             }`}
             onClick={() => setCurrentPage(index + 1)}
           >

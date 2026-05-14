@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
-import API from '../services/api'
-import StudentTable from '../components/StudentTable'
-import AddStudentForm from '../components/AddStudentForm'
+import { motion } from 'framer-motion'
 
 import {
-  FaUserGraduate,
+  FaMoon,
+  FaSun,
   FaUsers,
-  FaFemale,
   FaMale,
+  FaFemale,
   FaSearch,
   FaPlus
 } from 'react-icons/fa'
+
+import API from '../services/api'
+import StudentTable from '../components/StudentTable'
+import AddStudentForm from '../components/AddStudentForm'
 
 function Dashboard({ onLogout }) {
 
@@ -18,11 +21,24 @@ function Dashboard({ onLogout }) {
   const [editingStudent, setEditingStudent] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [darkMode, setDarkMode] = useState(false)
+
+  const [visibleColumns, setVisibleColumns] = useState({
+    name: true,
+    dob: true,
+    gender: true,
+    age: true,
+    email: true,
+    phone: true
+  })
 
   const fetchStudents = async () => {
     try {
+
       const response = await API.get('/students')
+
       setStudents(response.data)
+
     } catch (error) {
       console.log(error)
     }
@@ -35,7 +51,7 @@ function Dashboard({ onLogout }) {
   const deleteStudent = async (id) => {
 
     const confirmDelete = window.confirm(
-      'Are you sure you want to delete this student?'
+      'Delete this student?'
     )
 
     if (!confirmDelete) return
@@ -65,140 +81,182 @@ function Dashboard({ onLogout }) {
     (student) => student.gender === 'Female'
   ).length
 
+  const cardData = [
+    {
+      title: 'Total Students',
+      value: students.length,
+      icon: <FaUsers />
+    },
+    {
+      title: 'Male Students',
+      value: maleStudents,
+      icon: <FaMale />
+    },
+    {
+      title: 'Female Students',
+      value: femaleStudents,
+      icon: <FaFemale />
+    },
+    {
+      title: 'Results',
+      value: filteredStudents.length,
+      icon: <FaSearch />
+    }
+  ]
+
+  const toggleColumn = (column) => {
+
+    setVisibleColumns({
+      ...visibleColumns,
+      [column]: !visibleColumns[column]
+    })
+  }
+
   return (
     <div
-      className="container-fluid min-vh-100 py-4"
-      style={{ backgroundColor: '#f5f7fb' }}
+      className="min-vh-100 py-4"
+      style={{
+        backgroundColor: darkMode ? '#111827' : '#f5f7fb',
+        transition: '0.3s'
+      }}
     >
 
-      <div className="container bg-white rounded-4 shadow p-0 overflow-hidden">
+      <div className="container">
 
-        <div
-          className="d-flex justify-content-between align-items-center p-4 text-white"
-          style={{ backgroundColor: '#1f6b4f' }}
-        >
+        <div className="d-flex justify-content-between align-items-center mb-4">
 
           <div>
-            <h3 className="m-0 fw-bold">
-              Silicon Instructors
-            </h3>
 
-            <small>
-              Student Management System
+            <h2
+              className="fw-bold mb-1"
+              style={{
+                color: darkMode ? '#ffffff' : '#111827'
+              }}
+            >
+              Student Management
+            </h2>
+
+            <small
+              style={{
+                color: darkMode ? '#9ca3af' : '#6b7280'
+              }}
+            >
+              Minimal Dashboard
             </small>
+
           </div>
 
-          <button
-            className="btn btn-light"
-            onClick={onLogout}
-          >
-            Logout
-          </button>
+          <div className="d-flex gap-2">
+
+            <button
+              className="btn btn-sm"
+              style={{
+                backgroundColor: darkMode
+                  ? '#1f2937'
+                  : '#ffffff',
+                color: darkMode
+                  ? '#ffffff'
+                  : '#111827'
+              }}
+              onClick={() => setDarkMode(!darkMode)}
+            >
+              {darkMode ? <FaSun /> : <FaMoon />}
+            </button>
+
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={onLogout}
+            >
+              Logout
+            </button>
+
+          </div>
 
         </div>
 
-        <div className="p-4">
+        <div className="row g-4 mb-4">
 
-          <div className="row g-4 mb-4">
+          {cardData.map((card, index) => (
 
-            <div className="col-md-3">
-              <div className="card border-0 shadow-sm rounded-4 p-3">
+            <div className="col-md-3" key={index}>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.4,
+                  delay: index * 0.1
+                }}
+                whileHover={{ y: -5 }}
+                className="card border-0 shadow-sm rounded-4 p-4"
+                style={{
+                  backgroundColor: darkMode
+                    ? '#1f2937'
+                    : '#ffffff',
+                  color: darkMode
+                    ? '#ffffff'
+                    : '#111827'
+                }}
+              >
+
                 <div className="d-flex justify-content-between align-items-center">
 
                   <div>
-                    <p className="text-muted mb-1">
-                      Total Students
-                    </p>
 
-                    <h2 className="fw-bold">
-                      {students.length}
-                    </h2>
+                    <small
+                      style={{
+                        color: darkMode
+                          ? '#9ca3af'
+                          : '#6b7280'
+                      }}
+                    >
+                      {card.title}
+                    </small>
+
+                    <h3 className="fw-bold mt-2">
+                      {card.value}
+                    </h3>
+
                   </div>
 
-                  <FaUsers size={32} color="#1f6b4f" />
-
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-3">
-              <div className="card border-0 shadow-sm rounded-4 p-3">
-                <div className="d-flex justify-content-between align-items-center">
-
-                  <div>
-                    <p className="text-muted mb-1">
-                      Male Students
-                    </p>
-
-                    <h2 className="fw-bold">
-                      {maleStudents}
-                    </h2>
+                  <div style={{ fontSize: '1.5rem' }}>
+                    {card.icon}
                   </div>
 
-                  <FaMale size={32} color="#1f6b4f" />
-
                 </div>
-              </div>
+
+              </motion.div>
+
             </div>
+          ))}
 
-            <div className="col-md-3">
-              <div className="card border-0 shadow-sm rounded-4 p-3">
-                <div className="d-flex justify-content-between align-items-center">
+        </div>
 
-                  <div>
-                    <p className="text-muted mb-1">
-                      Female Students
-                    </p>
+        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
 
-                    <h2 className="fw-bold">
-                      {femaleStudents}
-                    </h2>
-                  </div>
+          <input
+            type="text"
+            className="form-control rounded-4 border-0 shadow-sm"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              maxWidth: '350px',
+              backgroundColor: darkMode
+                ? '#1f2937'
+                : '#ffffff',
+              color: darkMode
+                ? '#ffffff'
+                : '#111827'
+            }}
+          />
 
-                  <FaFemale size={32} color="#1f6b4f" />
-
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-3">
-              <div className="card border-0 shadow-sm rounded-4 p-3">
-                <div className="d-flex justify-content-between align-items-center">
-
-                  <div>
-                    <p className="text-muted mb-1">
-                      Search Results
-                    </p>
-
-                    <h2 className="fw-bold">
-                      {filteredStudents.length}
-                    </h2>
-                  </div>
-
-                  <FaSearch size={32} color="#1f6b4f" />
-
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <div className="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
-
-            <input
-              type="text"
-              className="form-control rounded-pill"
-              placeholder="Search student by name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ maxWidth: '350px' }}
-            />
+          <div className="d-flex gap-2 flex-wrap">
 
             <button
-              className="btn text-white rounded-pill px-4"
-              style={{ backgroundColor: '#1f6b4f' }}
+              className="btn btn-dark rounded-4 px-4"
               onClick={() => {
-                setShowForm(!showForm)
+                setShowForm(true)
                 setEditingStudent(null)
               }}
             >
@@ -208,28 +266,33 @@ function Dashboard({ onLogout }) {
 
           </div>
 
-          {(showForm || editingStudent) && (
-            <AddStudentForm
-              refreshStudents={fetchStudents}
-              editingStudent={editingStudent}
-              setEditingStudent={setEditingStudent}
-              closeForm={() => {
-                setShowForm(false)
-                setEditingStudent(null)
-              }}
-            />
-          )}
-
-          <StudentTable
-            students={filteredStudents}
-            deleteStudent={deleteStudent}
-            setEditingStudent={(student) => {
-              setEditingStudent(student)
-              setShowForm(true)
-            }}
-          />
-
         </div>
+
+        <StudentTable
+          students={filteredStudents}
+          deleteStudent={deleteStudent}
+          setEditingStudent={(student) => {
+            setEditingStudent(student)
+            setShowForm(true)
+          }}
+          darkMode={darkMode}
+          visibleColumns={visibleColumns}
+        />
+
+        {(showForm || editingStudent) && (
+
+          <AddStudentForm
+            refreshStudents={fetchStudents}
+            editingStudent={editingStudent}
+            setEditingStudent={setEditingStudent}
+            closeForm={() => {
+              setShowForm(false)
+              setEditingStudent(null)
+            }}
+            darkMode={darkMode}
+          />
+        )}
+
       </div>
     </div>
   )
