@@ -3,6 +3,8 @@ using StudentManagementAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ADD SERVICES
+
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -11,9 +13,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
+// CORS
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
+    options.AddPolicy(
+        "AllowFrontend",
         policy =>
         {
             policy.WithOrigins(
@@ -22,27 +27,58 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
-        });
+        }
+    );
 });
+
+// SWAGGER
 
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
 
+// BUILD APP
+
 var app = builder.Build();
+
+// SWAGGER
 
 app.UseSwagger();
 
 app.UseSwaggerUI();
 
+// HTTPS REDIRECTION DISABLED FOR RENDER
+
 // app.UseHttpsRedirection();
+
+// CORS
 
 app.UseCors("AllowFrontend");
 
+// AUTHORIZATION
+
 app.UseAuthorization();
+
+// MAP CONTROLLERS
 
 app.MapControllers();
 
-app.MapGet("/", () => "Student Management API Running");
+// ROOT ENDPOINT
+
+app.MapGet("/", () =>
+    "Student Management API Running"
+);
+
+// AUTO APPLY DATABASE MIGRATIONS
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider
+        .GetRequiredService<AppDbContext>();
+
+    db.Database.Migrate();
+}
+
+// RUN APP
 
 app.Run();
