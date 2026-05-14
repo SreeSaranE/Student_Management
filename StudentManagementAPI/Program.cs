@@ -45,4 +45,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapGet("/", () => "Student Management API Running");
+
 app.Run();
